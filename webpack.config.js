@@ -1,17 +1,17 @@
 // webpack.config.js
 var HTMLWebpackPlugin = require('html-webpack-plugin')
 var HTMLWebpackPluginConfig = new HTMLWebpackPlugin ({
-  template: __dirname + '/app/index.html',
+  template: __dirname + '/src/index.html',
   filename: 'index.html',
   inject: 'body'
 });
 module.exports = {
   mode: 'development',
-  entry: __dirname + '/app/index.js',
+  entry: __dirname + '/src/index.js',
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: [/\.jsx?$/, /\.tsx?$/],
         exclude: /node_modules/,
         loader: 'babel-loader'
       }
@@ -21,5 +21,8 @@ module.exports = {
     filename: 'transformed.js',
     path: __dirname + '/build'
   },
-  plugins: [HTMLWebpackPluginConfig]
+  plugins: [HTMLWebpackPluginConfig],
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js'],
+  }
 };
