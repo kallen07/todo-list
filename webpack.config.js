@@ -1,7 +1,7 @@
 // webpack.config.js
 var HTMLWebpackPlugin = require('html-webpack-plugin')
 var HTMLWebpackPluginConfig = new HTMLWebpackPlugin ({
-  template: __dirname + '/src/index.html',
+  template: __dirname + '/src/client/index.html',
   filename: 'index.html',
   inject: 'body'
 });
@@ -9,7 +9,7 @@ module.exports = [
   module = {
     name: 'client',
     mode: 'development',
-    entry: __dirname + '/src/index.js',
+    entry: __dirname + '/src/client/index.js',
     module: {
       rules: [
         {
@@ -31,7 +31,7 @@ module.exports = [
   module = {
     name: 'server',
     mode: 'development',
-    entry: __dirname + '/src/server.ts',
+    entry: __dirname + '/src/server/server.ts',
     target: 'node',
     node: {
       __dirname: false,
