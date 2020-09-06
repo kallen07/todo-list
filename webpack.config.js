@@ -21,7 +21,7 @@ module.exports = [
     },
     output: {
       filename: 'transformed.js',
-      path: __dirname + '/dist'
+      path: __dirname + '/dist/client'
     },
     plugins: [HTMLWebpackPluginConfig],
     resolve: {
@@ -48,7 +48,7 @@ module.exports = [
     },
     output: {
       filename: 'server.js',
-      path: __dirname + '/dist'
+      path: __dirname + '/dist/server'
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],

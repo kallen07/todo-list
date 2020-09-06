@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-    "baseUrl": "src",
+		"baseUrl": ".",
 		"target": "esnext",           		// Target latest version of ECMAScript.
     "moduleResolution": "node",    		// Search under node_modules for non-relative imports.
     "jsx": "react",                   // use typescript to transpile jsx to js??
@@ -11,6 +11,6 @@
 		"esModuleInterop": true		        // Import non-ES modules as default imports.
 	},
 	"include": [
-    "src"
+    "./src"
 	]
 }

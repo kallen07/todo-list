@@ -1,7 +1,7 @@
 // index.js
-var React = require('react');
-var ReactDOM = require('react-dom');
-import TodoList from './components/TodoList';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TodoList from './todo-list/TodoList';
 
 console.log("Hello from JavaScript!");
 

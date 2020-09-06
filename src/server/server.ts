@@ -1,23 +1,12 @@
-import express from 'express';
-import path from 'path';
-import models, { connectDb } from './../models';
-import "regenerator-runtime/runtime.js";
+import http from 'http';
+import { connectDb } from 'src/server/models';
+import app from './app';
+import models from 'src/server/models';
 
-const app: express.Application = express();
-
-app.use(express.static(__dirname));
-
-app.get('/', function (req: express.Request, res: express.Response) {
-  res.sendFile(path.join(__dirname + '/index.html'));
-});
-
-app.get('/todos', async function(req: express.Request, res: express.Response) {
-  const tasks = await models.Task.find({});
-  res.send(tasks);
-});
-
-
-const eraseDatabaseOnSync = true;
+const eraseDatabaseOnSync: boolean = true;
+const port = (process.env.PORT || '3000');
+app.set('port', port);
+var server = http.createServer(app);
 
 connectDb().then( async () => {
   if (eraseDatabaseOnSync) {
@@ -25,28 +14,30 @@ connectDb().then( async () => {
       models.User.deleteMany({}),
       models.Task.deleteMany({}),
     ]);
-    
+
     seedDatabase();
   }
 
-  app.listen(3000, function () {
-    console.log("App is listening on port 3000!");
+  server.listen(port);
+  server.on('error', (error) => {
+    throw error;
+  });
+  server.on('listening', () => {
+    console.log("App is listening on port " + port);
   });
 });
 
-const seedDatabase = async() => {
+async function seedDatabase() {
   const task1 = new models.Task({
     text: "walk dog",
     isDone: false,
     dateCreated: new Date().getTime(),
   });
-
   const task2 = new models.Task({
     text: "do laundry",
     isDone: true,
     dateCreated: new Date().getTime() + 1,
   });
-
   await task1.save();
   await task2.save();
   console.log("finished seeding database");
