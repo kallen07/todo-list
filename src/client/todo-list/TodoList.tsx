@@ -1,4 +1,4 @@
-import React, { FormEvent, ChangeEvent } from 'react';
+import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { Task } from 'src/types';
 
 type DisplayItemProps = {
@@ -6,28 +6,22 @@ type DisplayItemProps = {
   onCheckboxChange: CallableFunction;
 }
 
-class DisplayItem extends React.Component<DisplayItemProps> {
-  constructor(props: DisplayItemProps) {
-    super(props);
-    this.handleItemChecked = this.handleItemChecked.bind(this);
-  }
+function DisplayItem(props: DisplayItemProps) {
 
-  handleItemChecked(event: ChangeEvent<HTMLInputElement>) {
+  const handleItemChecked = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target;
-    this.props.onCheckboxChange(this.props.item.id, target.checked)
+    props.onCheckboxChange(props.item.id, target.checked)
   }
 
-  render() {
-    return(
-      <li>
-        <input type="checkbox"
-               checked={this.props.item.isDone}
-               onChange={this.handleItemChecked}/>
-        {this.props.item.text}<br/>
-        {"date created:" + this.props.item.dateCreated}
-      </li>
-    );
-  }
+  return(
+    <li>
+      <input type="checkbox"
+              checked={props.item.isDone}
+              onChange={handleItemChecked}/>
+      {props.item.text}<br/>
+      {"date created:" + props.item.dateCreated}
+    </li>
+  );
 }
 
 type DisplayListProps = {
@@ -69,135 +63,88 @@ type NewItemInputProps = {
   newItemText: string;
 }
 
-class NewItemInput extends React.Component<NewItemInputProps> {
-  constructor(props: NewItemInputProps) {
-    super(props);
+function NewItemInput(props: NewItemInputProps) {
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+  const handleChange = (event: ChangeEvent<HTMLInputElement>)  => {
+    props.onNewItemTextChange(event.target.value);
   }
 
-  handleChange(event: ChangeEvent<HTMLInputElement>) {
-    this.props.onNewItemTextChange(event.target.value);
-  }
-
-  handleSubmit(event: FormEvent) {
-    this.props.onSubmit();
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
+    props.onSubmit();
   }
 
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <input 
-          type="text"
-          placeholder="Wash the laundry..."
-          value={this.props.newItemText}
-          onChange={this.handleChange} />
-        <input type="submit" value="Submit"/>
-      </form>
-    );
-  }
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Wash the laundry..."
+        value={props.newItemText}
+        onChange={handleChange} />
+      <input type="submit" value="Submit"/>
+    </form>
+  );
 }
 
-type TodoListState = {
-  items: Map<string, Task>;
-  newItemText: string;
-  error?: string;
-}
+type taskMap = Map<string, Task>;
 
-class TodoList extends React.Component<{}, TodoListState> {
-  constructor(props: {}) {
-    super(props);
+function TodoList() {
 
-    this.state = {items: new Map<string, Task>(), newItemText: ""};
+  const [tasks, updateTasks] = useState<taskMap>(new Map<string, Task>());
+  const [newItemText, updateNewItemText] = useState<string>("");
 
-    this.onNewItemTextChange = this.onNewItemTextChange.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onCheckboxChange = this.onCheckboxChange.bind(this);
-  }
-
-  componentDidMount() {
+  const getTasks = () => {
     fetch("http://localhost:3000/tasks")
       .then(res => res.json())
       .then(
-        (result) => {
-          var items: Map<string, Task> = new Map<string, Task>();
-          result.forEach((object: Task) => {
-            items.set(object.id, object);
+        (taskList) => {
+          const tasksFromServer: Map<string, Task> = new Map<string, Task>();
+          taskList.forEach((object: Task) => {
+            tasksFromServer.set(object.id, object);
           });
 
-          this.setState({
-            items: items,
-            newItemText: "",
-          });
-
+          updateTasks(tasksFromServer);
         },
         (error) => {
-          this.setState({
-            items: new Map<string, Task>(),
-            newItemText: "",
-            error: error,
-          });
+          console.log(error)
         }
       )
   }
 
-  onNewItemTextChange(value: string) {
-    this.setState((state, props) => ({
-      newItemText: value
-    }));
-  }
-
-  onSubmit() {
+  const postTask = () => {
     const currDate: Date = new Date();
-    var newTask: Task;
-    this.setState((state) => {
-      newTask = {
-        id: currDate.getTime().toString(),  // temporary client-generated ID
-        text: state.newItemText,
-        isDone: false,
-        dateCreated: currDate,
-      };
 
-      state.items.set(newTask.id, newTask);
-      return {
-        items: state.items,
-        newItemText: ""
-      };
-    }, () => {
-      fetch("http://localhost:3000/tasks", {
-        method: 'POST',
-        body: JSON.stringify(newTask),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8'
-        }
-      })
-      .then(response => response.json())
-      .then(json => {
-        console.log("saved new task to mongodb: " + JSON.stringify(newTask));
-        console.log("the new task id is " + json.id);
-        this.setState((state) => {
-          // set permanent server-generated ID
-          newTask.id = json.id;
-          state.items.delete(currDate.getTime().toString());
-          state.items.set(json.id, newTask);
-        });
+    const newTask: Task = {
+      id: "",
+      text: newItemText,
+      isDone: false,
+      dateCreated: currDate,
+    };
+
+    fetch("http://localhost:3000/tasks", {
+      method: 'POST',
+      body: JSON.stringify(newTask),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8'
+      }
+    })
+    .then(response => response.json())
+    .then(task => {
+      console.log("saved new task to mongodb: " + JSON.stringify(newTask));
+      console.log("the new task id is " + task.id);
+
+      updateTasks(tasks => {
+        const newTasks: Map<string, Task> = new Map(tasks);
+        newTasks.set(task.id, task);
+        return newTasks;
       });
     });
+
+    updateNewItemText("");
   }
 
-  onCheckboxChange(key: string, isChecked: boolean) {
-    var task: Task;
-    this.setState((state) => {
-      task = state.items.get(key)!;
-      task.isDone = isChecked;
-      state.items.set(key, task)
-      return {
-        items: state.items
-      }
-    }, () => {
-      fetch("http://localhost:3000/tasks/" + task.id, {
+  const putTask = (task: Task) => {
+    fetch("http://localhost:3000/tasks/" + task.id, {
         method: 'PUT',
         body: JSON.stringify(task),
         headers: {
@@ -205,40 +152,49 @@ class TodoList extends React.Component<{}, TodoListState> {
         }
       })
       .then(response => response.json())
-      .then(json => {
-        console.log("updated task in mongodb: " + JSON.stringify(task));
+      .then(taskFromServer => {
+        console.log("updated task in mongodb: " + JSON.stringify(taskFromServer));
+        updateTasks(tasks => {
+          const newTasks = new Map(tasks);
+          newTasks.set(taskFromServer.id, taskFromServer);
+          return newTasks;
+        })
       });
-    });
   }
 
-  render() {
-    if (this.state.error) {
-      console.log(this.state.error);
-      // todo handle the error better here
-    }
+  const onCheckboxChange = (key: string, isChecked: boolean) => {
+    var task: Task = tasks.get(key)!;
+    task.isDone = isChecked;
 
-    var itemsCompleted: number = 0;
-    this.state.items.forEach((value, key, map) => {
+    putTask(task);
+  }
+
+  const computeItemCompleted = (): number => {
+   let itemsCompleted: number = 0;
+    tasks.forEach((value) => {
       if (value.isDone) {
         itemsCompleted++;
       }
     });
-    
-    return (
-      <div>
-        <h1>My ToDo List</h1>
-        <>
-          <NewItemInput onNewItemTextChange={this.onNewItemTextChange}
-                        onSubmit={this.onSubmit}
-                        newItemText={this.state.newItemText} />
-          <DisplayTotalItemCount total={this.state.items.size}
-                                 completed={itemsCompleted} />
-          <DisplayList onCheckboxChange={this.onCheckboxChange}
-                       items={this.state.items} />
-        </>
-      </div>
-    );
+    return itemsCompleted;
   }
+
+  useEffect(getTasks, []);
+
+  return (
+    <div>
+      <h1>My ToDo List</h1>
+      <>
+        <NewItemInput onNewItemTextChange={updateNewItemText}
+                      onSubmit={postTask}
+                      newItemText={newItemText} />
+        <DisplayTotalItemCount total={tasks.size}
+                                completed={computeItemCompleted()} />
+        <DisplayList onCheckboxChange={onCheckboxChange}
+                     items={tasks} />
+      </>
+    </div>
+  );
 }
 
 export default TodoList;

@@ -6,23 +6,29 @@ const router = Router();
 
 // CREATE
 // request type: src/types/task
-// response: {"id": string}
+// response type: src/types/task
 router.post('/', async function(req: express.Request, res: express.Response) {
-  const newTask = new models.Task({
+  const dbTask: any = new models.Task({
     text: req.body.text,
     isDone: req.body.isDone,
     dateCreated: req.body.dateCreated,
   });
 
-  await newTask.save();
+  await dbTask.save();
 
-  res.send({"id": newTask._id});
+  const task: Task = {
+    id: dbTask._id,
+    text: dbTask.text,
+    isDone: dbTask.isDone,
+    dateCreated: dbTask.dateCreated,
+  }
+  res.send(task);
 });
 
 // READ
 router.get('/', async function(req: express.Request, res: express.Response) {
   const dbTasks = await models.Task.find({});
-  var tasks: Task[] = [];
+  const tasks: Task[] = [];
   dbTasks.forEach((dbTask: any) => {
     tasks.push({
       id: dbTask._id,
@@ -37,18 +43,25 @@ router.get('/', async function(req: express.Request, res: express.Response) {
 // UPDATE
 // overwrites all task fields associated with a specific task id
 // request type: src/types/task
-// response: {"id": string}
+// response: type: src/types/task
 router.put('/:taskId', async function(req: express.Request, res: express.Response) {
-  const task: any = await models.Task.findById(req.params.taskId);
-  if (task == null) {
+  const dbTask: any = await models.Task.findById(req.params.taskId);
+  if (dbTask == null) {
     res.sendStatus(404);
     console.log("!!!! ERROR IN TASK UPDATE: could not find task with id: "+ req.body.id);
   } else {
-    task.text = req.body.text;
-    task.isDone = req.body.isDone;
-    task.dateCreated = req.body.dateCreated,
-    await task.save();
-    res.send({"id": req.params.taskId});
+    dbTask.text = req.body.text;
+    dbTask.isDone = req.body.isDone;
+    dbTask.dateCreated = req.body.dateCreated,
+    await dbTask.save();
+
+    const task: Task = {
+      id: dbTask._id,
+      text: dbTask.text,
+      isDone: dbTask.isDone,
+      dateCreated: dbTask.dateCreated,
+    }
+    res.send(task);
   }
 });
 
