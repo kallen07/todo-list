@@ -4,7 +4,7 @@ import app from './app';
 import models from 'src/server/models';
 
 const eraseDatabaseOnSync: boolean = true;
-const port = (process.env.PORT || '3000');
+const port = process.env.PORT;
 app.set('port', port);
 var server = http.createServer(app);
 

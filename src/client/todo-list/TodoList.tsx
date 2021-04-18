@@ -94,7 +94,7 @@ function TodoList() {
   const [newItemText, updateNewItemText] = useState<string>("");
 
   const getTasks = () => {
-    fetch("http://localhost:3000/tasks")
+    fetch("/tasks")
       .then(res => res.json())
       .then(
         (taskList) => {
@@ -121,7 +121,7 @@ function TodoList() {
       dateCreated: currDate,
     };
 
-    fetch("http://localhost:3000/tasks", {
+    fetch("/tasks", {
       method: 'POST',
       body: JSON.stringify(newTask),
       headers: {
@@ -144,7 +144,7 @@ function TodoList() {
   }
 
   const putTask = (task: Task) => {
-    fetch("http://localhost:3000/tasks/" + task.id, {
+    fetch("/tasks/" + task.id, {
         method: 'PUT',
         body: JSON.stringify(task),
         headers: {
