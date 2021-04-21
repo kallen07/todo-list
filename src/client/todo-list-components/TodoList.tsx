@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Task } from 'src/types';
 import DisplayList from './DisplayList';
 import DisplayTotalItemCount from './DisplayTotalItemCount';
@@ -84,6 +84,29 @@ function TodoList() {
       });
   }
 
+  const deleteTasks = (ids: String[]) => {
+    fetch("/tasks", {
+      method: "DELETE",
+      body: JSON.stringify(ids),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8'
+      }
+    })
+    .then(response => {
+      if (response.status === 200) {
+        setTasks(tasks.filter(t => !ids.includes(t.id)));
+      } else {
+        console.log("!!!! TASK DELETION FAILED", response)
+      }
+    })
+  }
+
+  const clearCompletedTasks = () => {
+    const completedTasks : Task[] = tasks.filter(t => t.isDone)
+    const taskids = completedTasks.map(t => t.id);
+    deleteTasks(completedTasks.map(t => t.id));
+  }
+
   const onCheckboxChange = (key: string, isChecked: boolean) => {
     var task: Task = tasks.find(t => t.id === key)!;
     task.isDone = isChecked;
@@ -115,6 +138,7 @@ function TodoList() {
                                completed={computeItemCompleted()} />
         <DisplayList onCheckboxChange={onCheckboxChange}
                      items={Array.from(tasks.values())} />
+        <button onClick={clearCompletedTasks}>Clear Completed</button>
       </>
     </div>
   );
