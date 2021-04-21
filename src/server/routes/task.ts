@@ -12,6 +12,7 @@ router.post('/', async function(req: express.Request, res: express.Response) {
     text: req.body.text,
     isDone: req.body.isDone,
     dateCreated: req.body.dateCreated,
+    dateCompleted: req.body.dateCompleted,
   });
 
   await dbTask.save();
@@ -21,6 +22,7 @@ router.post('/', async function(req: express.Request, res: express.Response) {
     text: dbTask.text,
     isDone: dbTask.isDone,
     dateCreated: dbTask.dateCreated,
+    dateCompleted: dbTask.dateCompleted,
   }
   res.send(task);
 });
@@ -35,6 +37,7 @@ router.get('/', async function(req: express.Request, res: express.Response) {
       text: dbTask.text,
       isDone: dbTask.isDone,
       dateCreated: dbTask.dateCreated,
+      dateCompleted: dbTask.dateCompleted,
     });
   });
   res.send(tasks);
@@ -53,6 +56,7 @@ router.put('/:taskId', async function(req: express.Request, res: express.Respons
     dbTask.text = req.body.text;
     dbTask.isDone = req.body.isDone;
     dbTask.dateCreated = req.body.dateCreated,
+    dbTask.dateCompleted = req.body.dateCompleted,
     await dbTask.save();
 
     const task: Task = {
@@ -60,6 +64,7 @@ router.put('/:taskId', async function(req: express.Request, res: express.Respons
       text: dbTask.text,
       isDone: dbTask.isDone,
       dateCreated: dbTask.dateCreated,
+      dateCompleted: dbTask.dateCompleted,
     }
     res.send(task);
   }

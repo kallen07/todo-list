@@ -38,6 +38,7 @@ async function seedDatabase() {
     text: "Do laundry",
     isDone: true,
     dateCreated: new Date().getTime() + 1,
+    dateCompleted: new Date().getTime() + 2,
   });
   await task1.save();
   await task2.save();

@@ -4,24 +4,32 @@ import DisplayList from './DisplayList';
 import DisplayTotalItemCount from './DisplayTotalItemCount';
 import NewItemInput from './NewItemInput';
 
-type taskMap = Map<string, Task>;
+// This code is very ugly, basically compares to ensure that
+// if both tasks are finished then the most recently completed task comes first
+// if both tasks are unfinished then the most recently created task comes first
+// unfinished tasks come before finished tasks
+const compareTasks = (task1 : Task, task2 : Task) => {
+  if (task1.isDone && task2.isDone) {
+    // use the non-null assertion operator (!) to prevent typing error
+    return task1.dateCompleted! >= task2.dateCompleted! ? -1 : 1;
+  } else if (!task1.isDone && !task2.isDone) {
+    return task1.dateCreated >= task2.dateCreated ? -1 : 1;
+  }
+  return task1.isDone ? 1 : -1;
+};
+
 
 function TodoList() {
 
-  const [tasks, updateTasks] = useState<taskMap>(new Map<string, Task>());
-  const [newItemText, updateNewItemText] = useState<string>("");
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [newItemText, setNewItemText] = useState<string>("");
 
   const getTasks = () => {
     fetch("/tasks")
       .then(res => res.json())
       .then(
         (taskList) => {
-          const tasksFromServer: Map<string, Task> = new Map<string, Task>();
-          taskList.forEach((object: Task) => {
-            tasksFromServer.set(object.id, object);
-          });
-
-          updateTasks(tasksFromServer);
+          setTasks(taskList.sort(compareTasks));
         },
         (error) => {
           console.log(error)
@@ -37,6 +45,7 @@ function TodoList() {
       text: newItemText,
       isDone: false,
       dateCreated: currDate,
+      dateCompleted: null,
     };
 
     fetch("/tasks", {
@@ -47,18 +56,14 @@ function TodoList() {
       }
     })
     .then(response => response.json())
-    .then(task => {
+    .then(newTask => {
       console.log("saved new task to mongodb: " + JSON.stringify(newTask));
-      console.log("the new task id is " + task.id);
+      console.log("the new task id is " + newTask.id);
 
-      updateTasks(tasks => {
-        const newTasks: Map<string, Task> = new Map(tasks);
-        newTasks.set(task.id, task);
-        return newTasks;
-      });
+      setTasks([newTask, ...tasks])
     });
 
-    updateNewItemText("");
+    setNewItemText("");
   }
 
   const putTask = (task: Task) => {
@@ -72,25 +77,25 @@ function TodoList() {
       .then(response => response.json())
       .then(taskFromServer => {
         console.log("updated task in mongodb: " + JSON.stringify(taskFromServer));
-        updateTasks(tasks => {
-          const newTasks = new Map(tasks);
-          newTasks.set(taskFromServer.id, taskFromServer);
-          return newTasks;
-        })
+        const updatedTasks : Task[] = tasks.filter(t => t.id != taskFromServer.id)
+        updatedTasks.push(taskFromServer)
+        //tasks.slice(0, index).concat(newTaskArray, tasks.slice(index + 1));
+        setTasks(updatedTasks.sort(compareTasks));
       });
   }
 
   const onCheckboxChange = (key: string, isChecked: boolean) => {
-    var task: Task = tasks.get(key)!;
+    var task: Task = tasks.find(t => t.id === key)!;
     task.isDone = isChecked;
+    task.dateCompleted = isChecked? new Date() : null;
 
     putTask(task);
   }
 
   const computeItemCompleted = (): number => {
    let itemsCompleted: number = 0;
-    tasks.forEach((value) => {
-      if (value.isDone) {
+    tasks.forEach(t => {
+      if (t.isDone) {
         itemsCompleted++;
       }
     });
@@ -103,13 +108,13 @@ function TodoList() {
     <div>
       <h1>My ToDo List</h1>
       <>
-        <NewItemInput onNewItemTextChange={updateNewItemText}
+        <NewItemInput onNewItemTextChange={setNewItemText}
                       onSubmit={postTask}
                       newItemText={newItemText} />
-        <DisplayTotalItemCount total={tasks.size}
+        <DisplayTotalItemCount total={tasks.length}
                                completed={computeItemCompleted()} />
         <DisplayList onCheckboxChange={onCheckboxChange}
-                     items={tasks} />
+                     items={Array.from(tasks.values())} />
       </>
     </div>
   );

@@ -3,4 +3,5 @@ export type Task = {
   text: string,
   isDone: boolean,
   dateCreated: Date,
+  dateCompleted: Date | null,
 }
