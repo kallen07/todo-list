@@ -4,9 +4,10 @@
   "description": "app to learn typescript",
   "main": "index.ts",
   "scripts": {
-    "build": "webpack --progress --mode=production",
+    "build": "webpack --progress",
     "check-types": "tsc",
     "dev-server": "webpack-dev-server --open",
+    "heroku-postbuild": "webpack --progress --mode=production",
     "start": "node ./dist/server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --progress --watch"
