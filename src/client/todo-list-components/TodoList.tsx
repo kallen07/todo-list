@@ -3,6 +3,7 @@ import { Task } from 'src/types';
 import DisplayList from './DisplayList';
 import DisplayTotalItemCount from './DisplayTotalItemCount';
 import NewItemInput from './NewItemInput';
+import { WarningButton } from './Buttons';
 
 // This code is very ugly, basically compares to ensure that
 // if both tasks are finished then the most recently completed task comes first
@@ -130,16 +131,16 @@ function TodoList() {
   return (
     <div>
       <h1>My ToDo List</h1>
-      <>
+      <div>
         <NewItemInput onNewItemTextChange={setNewItemText}
                       onSubmit={postTask}
                       newItemText={newItemText} />
-        <DisplayTotalItemCount total={tasks.length}
-                               completed={computeItemCompleted()} />
         <DisplayList onCheckboxChange={onCheckboxChange}
                      items={Array.from(tasks.values())} />
-        <button onClick={clearCompletedTasks}>Clear Completed</button>
-      </>
+        <DisplayTotalItemCount total={tasks.length}
+                               completed={computeItemCompleted()} />
+        <WarningButton onClick={clearCompletedTasks}>Clear Completed</WarningButton>
+      </div>
     </div>
   );
 }

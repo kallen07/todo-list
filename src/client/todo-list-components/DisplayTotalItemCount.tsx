@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 
 type TotalItemCountProps = {
   total: number;
@@ -7,10 +8,9 @@ type TotalItemCountProps = {
 
 function DisplayTotalItemCount(props: TotalItemCountProps) {
   return (
-    <>
-      <p>Items completed: {props.completed}</p>
-      <p>Total items: {props.total}</p>
-    </>
+    <div>
+      <p>{props.completed} out of {props.total} completed</p>
+    </div>
   );
 }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Task } from 'src/types';
 import DisplayItem from './DisplayItem';
 
@@ -6,6 +7,12 @@ type DisplayListProps = {
   items: Array<Task>;
   onCheckboxChange: CallableFunction;
 }
+
+const List = styled.ul`
+  padding: 0;
+  margin: 25px 0;
+`;
+
 
 function DisplayList(props: DisplayListProps) {
   var displayItemList: JSX.Element[] = [];
@@ -15,9 +22,9 @@ function DisplayList(props: DisplayListProps) {
                                       onCheckboxChange={props.onCheckboxChange}/>)
   })
   return (
-    <ul style={{listStyle: "none"}}>
+    <List style={{listStyle: "none"}}>
       {displayItemList}
-    </ul>
+    </List>
   );
 }
 

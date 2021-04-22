@@ -72,7 +72,6 @@ router.put('/:taskId', async function(req: express.Request, res: express.Respons
 
 // DELETE
 router.delete('/', async function(req: express.Request, res: express.Response) {
-  console.log(req.body)
   models.Task.deleteMany({_id: {$in: req.body}}, (err) => {
     if (err) {
       res.status(400).send(err);

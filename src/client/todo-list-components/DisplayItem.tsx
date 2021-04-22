@@ -1,5 +1,19 @@
 import React, { ChangeEvent } from 'react';
+import styled from 'styled-components';
 import { Task } from 'src/types';
+
+interface StyledItemProps {
+  readonly isDone: boolean;
+};
+
+const StyledItem = styled.li<StyledItemProps>`
+  color: ${props => props.isDone ? "grey" : "black"};
+  padding: 5px 0;
+`;
+
+const StyledCheckbox = styled.input`
+  margin-right: 10px;
+`;
 
 type DisplayItemProps = {
   item: Task;
@@ -14,13 +28,12 @@ function DisplayItem(props: DisplayItemProps) {
   }
 
   return(
-    <li>
-    <input type="checkbox"
-            checked={props.item.isDone}
-            onChange={handleItemChecked}/>
-    {props.item.text}<br/>
-    {"date created:" + props.item.dateCreated}
-    </li>
+    <StyledItem isDone={props.item.isDone}>
+      <StyledCheckbox type="checkbox"
+                      checked={props.item.isDone}
+                      onChange={handleItemChecked}/>
+      {props.item.text}
+    </StyledItem>
   );
 }
 
