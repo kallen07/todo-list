@@ -22,7 +22,7 @@
     "express": "^4.17.1",
     "moment": "^2.27.0",
     "mongodb-client-encryption": "^1.1.0",
-    "mongoose": "^5.10.2",
+    "mongoose": "^5.12.5",
     "normalize.css": "^8.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
